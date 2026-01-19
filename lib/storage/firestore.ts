@@ -28,10 +28,9 @@ function ensureDb() {
 export async function createNote(userId: string, noteData: Partial<Note>) {
   const firestore = ensureDb();
   const now = Timestamp.now();
-  const noteId = nanoid();
 
   const note: Note = {
-    id: noteId,
+    id: "", // Will be set by Firestore
     userId,
     listId: noteData.listId || "inbox",
     originalContent: noteData.originalContent || "",
@@ -119,10 +118,9 @@ export async function createList(
 ): Promise<NoteList> {
   const firestore = ensureDb();
   const now = Timestamp.now();
-  const listId = nanoid();
 
   const list: NoteList = {
-    id: listId,
+    id: "", // Will be set by Firestore
     userId,
     name: listData.name || "New List",
     description: listData.description,
@@ -211,8 +209,13 @@ export async function searchNotes(
   userId: string,
   searchTerm: string
 ): Promise<Note[]> {
-  // Note: Firestore doesn't support full-text search natively
-  // This is a basic implementation - for production, use Algolia or similar
+  // Note: Firestore doesn't support full-text search natively.
+  // This basic implementation fetches all notes and filters client-side.
+  // For production with large datasets, consider:
+  // - Algolia for full-text search
+  // - Elasticsearch for advanced queries
+  // - Firebase Extensions for Firestore full-text search
+  // - Typesense for typo-tolerant search
   const notes = await getUserNotes(userId);
   const lowerSearchTerm = searchTerm.toLowerCase();
 
